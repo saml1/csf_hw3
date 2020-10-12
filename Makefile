@@ -10,7 +10,7 @@ CFLAGS = -g -Og -Wall -Wextra -pedantic
 all : csim
 
 
-csim: csim_io.o csim_main.o
+csim: csim_io.o csim_main.o cache.o
 	gcc -o $@ $(CFLAGS) csim_io.o csim_main.o
 
 
