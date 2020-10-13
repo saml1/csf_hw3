@@ -22,7 +22,7 @@ std::vector<std::tuple<char, std::string, int>> get_input() {
         l 0x200000e0 2 */
 
     for (std::string input; std::getline(std::cin, input); ) {
-        auto temp = std::make_tuple(input[0], input.substr(4, 11) ,(int) (input[14]));
+        auto temp = std::make_tuple(input[0], input.substr(4, 8) ,(int) (input[14]));
         output.emplace_back(temp);
     }
 
