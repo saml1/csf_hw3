@@ -44,8 +44,10 @@ int main(int argc, char **argv) {
 void testGetInput(TestObjs *objs) {
     (void) objs; // suppress warning about unused parameter
     std::cout << "\nEnter the following: s 0x1fffff50 1\n";
-    std::vector<std::tuple<char, std::string, int>> input = get_input();
-    std::cout << "char: " <<  std::get<0>(input[0]) << "\n";
-    std::cout << "string: " <<  std::get<1>(input[0]) << "\n";
+    std::vector<std::pair<char, std::string>> input = get_input();
+    std::cout << "char: " <<  input[0].first << "\n";
+    std::cout << "string: " <<  input[0].second << "\n";
+    //std::cout << "char: " <<  std::get<0>(input[0]) << "\n";
+    //std::cout << "string: " <<  std::get<1>(input[0]) << "\n";
     std::cout << "int: " <<  std::get<2>(input[0]) << "\n";
 }

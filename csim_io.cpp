@@ -7,12 +7,12 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <tuple>
+#include <utility> //for pair
 
 
-std::vector<std::tuple<char, std::string, int>> get_input() {
+std::vector<std::pair<char, std::string>> get_input() {
 
-    std::vector<std::tuple<char, std::string, int>> output;
+    std::vector<std::pair<char, std::string>> output;
 
     /*  s 0x1fffff50 1
         l 0x1fffff58 1
@@ -22,7 +22,7 @@ std::vector<std::tuple<char, std::string, int>> get_input() {
         l 0x200000e0 2 */
 
     for (std::string input; std::getline(std::cin, input); ) {
-        auto temp = std::make_tuple(input[0], input.substr(4, 8) ,(int) (input[14]));
+        auto temp = std::make_pair(input[0], input.substr(4, 8));
         output.emplace_back(temp);
     }
 
