@@ -8,10 +8,10 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <tuple>
+#include <utility>
 
 
-std::vector<std::tuple<char, std::string, int>> get_input();
+std::vector<std::pair<char, std::string>> get_input();
 
 void output(int load_hits, int load_miss, int store_hit, int store_miss, int total);
 
