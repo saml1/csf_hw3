@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
 
     TEST_INIT();
 
-    TEST(testgetInput);
+    TEST(testGetInput);
 
     TEST_FINI();
 
