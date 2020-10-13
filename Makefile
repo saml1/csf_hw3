@@ -14,8 +14,8 @@ csim: csim_io.o csim_main.o cache.o
 	gcc -o $@ $(CFLAGS) csim_io.o csim_main.o
 
 
-csim_tests : csim_io.o tctest.o
-	gcc -o $@ $(LDFLAGS) csim_io.o tctest.o
+csim_tests : csim_io.o tctestpp.o
+	gcc -o $@ $(LDFLAGS) csim_io.o tctestpp.o
 
 # Use this target to create a zipfile that you can submit to Gradescope
 .PHONY: solution.zip
