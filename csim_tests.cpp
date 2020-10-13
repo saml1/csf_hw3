@@ -2,11 +2,6 @@
 // Created by Sam Lipschitz on 10/13/20.
 //
 
-// Unit tests for hex functions
-// These tests should work for both your C implementations and your
-// assembly language implementations
-//Sam Lipschitz
-//slipsch3@jhu.edu
 #include <stdio.h>
 #include <stdlib.h>
 #include "tctestpp.h"
@@ -19,7 +14,7 @@ typedef struct {
 
 // setup function (to create the test fixture)
 TestObjs *setup(void) {
-    TestObjs *objs = malloc(sizeof(TestObjs));
+    TestObjs *objs = (TestObjs*) malloc(sizeof(TestObjs));
     strcpy(objs->test_data_1, "Hello, world!\n");
     return objs;
 }
