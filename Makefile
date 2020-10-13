@@ -2,16 +2,16 @@
 # Makefile for CSF Assignment 3
 #
 
-CFLAGS = -g -Og -Wall -Wextra -pedantic -std=gnu11
+CFLAGS = -g -Og -Wall -Wextra -pedantic
 
 %.o : %.cpp
-	gcc $(CFLAGS) -c $<
+	g++ $(CFLAGS) -c $<
 
 all : csim
 
 
 csim: csim_io.o csim_main.o cache.o
-	gcc -o $@ $(CFLAGS) csim_io.o csim_main.o
+	g++ -o $@ $(CFLAGS) csim_io.o csim_main.o
 
 
 csim_tests : csim_io.o csim_tests.o tctestpp.o
