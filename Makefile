@@ -2,6 +2,7 @@
 # Makefile for CSF Assignment 3
 #
 
+
 CFLAGS = -g -Og -Wall -Wextra -pedantic -std=c++17
 
 %.o : %.cpp
