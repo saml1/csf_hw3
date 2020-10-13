@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "tctestpp.h"
-#include "csim_.h"
+#include "csim_io.h"
 
 // test fixture object
 typedef struct {
@@ -48,20 +48,5 @@ int main(int argc, char **argv) {
 
 void testGetInput(TestObjs *objs) {
     (void) objs; // suppress warning about unused parameter
-    char buf[16];
-    hex_format_offset(1L, buf);
-    //printf("buf: %s\n", buf);
-    ASSERT(0 == strcmp(buf, "00000001"));
-
-    hex_format_offset(12345L, buf);
-    //printf("buf: %s\n", buf);
-    ASSERT(0 == strcmp(buf, "00003039"));
-
-    hex_format_offset(3497L, buf);
-    //printf("buf: %s\n", buf);
-    ASSERT(0 == strcmp(buf, "00000da9"));
-
-    hex_format_offset(691111L, buf);
-    //printf("buf: %s\n", buf);
-    ASSERT(0 == strcmp(buf, "000a8ba7"));
+    std::vector<std::tuple<char, std::string, int>> input = get_input();
 }
