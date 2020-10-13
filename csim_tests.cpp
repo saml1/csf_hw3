@@ -49,5 +49,5 @@ void testGetInput(TestObjs *objs) {
     std::cout << "string: " <<  input[0].second << "\n";
     //std::cout << "char: " <<  std::get<0>(input[0]) << "\n";
     //std::cout << "string: " <<  std::get<1>(input[0]) << "\n";
-    std::cout << "int: " <<  std::get<2>(input[0]) << "\n";
+    //std::cout << "int: " <<  std::get<2>(input[0]) << "\n";
 }
