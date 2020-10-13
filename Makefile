@@ -2,7 +2,7 @@
 # Makefile for CSF Assignment 3
 #
 
-CFLAGS = -g -Og -Wall -Wextra -pedantic
+CFLAGS = -g -Og -Wall -Wextra -pedantic -std=gnu11
 
 %.o : %.cpp
 	gcc $(CFLAGS) -c $<
@@ -15,7 +15,7 @@ csim: csim_io.o csim_main.o cache.o
 
 
 csim_tests : csim_io.o csim_tests.o tctestpp.o
-	gcc -o $@ $(LDFLAGS) csim_io.o csim_tests.o tctestpp.o
+	gcc -o $@ $(CFLAGS) csim_io.o csim_tests.o tctestpp.o
 
 # Use this target to create a zipfile that you can submit to Gradescope
 .PHONY: solution.zip
