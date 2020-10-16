@@ -47,6 +47,8 @@ int main(int argc, char *argv[]) {
     if(!allValuesValid(sets, blocks, bytes)){
         return 1;
     }
-    int offset = log2(bytes);
+    int offset_bits = log2(blocks);
+    int index_bits = log2(sets);
+    int tag_bits = 32 - offset_bits - index_bits;
     return 0;
 }
