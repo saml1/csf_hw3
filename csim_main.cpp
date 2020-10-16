@@ -4,6 +4,7 @@
 
 #include "csim_io.h"
 #include <string>
+#include <cmath>
 
 struct Cache{
  //TODO: define structure
@@ -20,18 +21,18 @@ int isValid(int val){
 int allValuesValid(int sets, int blocks, int bytes){
     if(!isValid(sets)){
         printf("Invalid set value.\n");
-        return 1;
+        return 0;
     }
     if(!isValid(blocks) || blocks < 4){
         printf("Invalid block value.\n");
-        return 1;
+        return 0;
     }
 
     if(!isValid(bytes)){
         printf("Invalid byte value.\n");
-        return 1;
+        return 0;
     }
-    return 0;
+    return 1;
 }
 
 int main(int argc, char *argv[]) {
@@ -46,8 +47,6 @@ int main(int argc, char *argv[]) {
     if(!allValuesValid(sets, blocks, bytes)){
         return 1;
     }
-
-
-
+    int offset = log2(bytes);
     return 0;
 }
