@@ -3,7 +3,7 @@
 #
 
 
-CFLAGS = -g -Og -Wall -Wextra -pedantic -std=c++17
+CFLAGS = -g -Og -Wall -Wextra -pedantic -std=c++20
 
 %.o : %.cpp
 	g++ $(CFLAGS) -c $<

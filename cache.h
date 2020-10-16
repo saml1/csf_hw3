@@ -6,9 +6,7 @@
 #define CSF_HW3_CACHE_H
 
 
-class cache {
-
-};
+struct Cache;
 
 
 #endif //CSF_HW3_CACHE_H
