@@ -7,8 +7,14 @@
 
 #include "cache.h"
 
-struct Cache {
+/*struct Cache {
     char name[5];
-};
+};*/
+
+Cache::Cache(int sets, int blocks, int bytes){
+    numSets = sets;
+    numBlocks = blocks;
+    numBytes = bytes;
+}
 
 
