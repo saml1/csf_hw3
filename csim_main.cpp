@@ -3,12 +3,13 @@
 //
 
 #include "csim_io.h"
+#include "cache.h"
 #include <string>
 #include <cmath>
 
-struct Cache{
+/*struct Cache{
  //TODO: define structure
-};
+};*/
 
 int isValid(int val){
     if(val <= 0){
@@ -50,5 +51,7 @@ int main(int argc, char *argv[]) {
     int offset_bits = log2(blocks);
     int index_bits = log2(sets);
     int tag_bits = 32 - offset_bits - index_bits;
+
+    Cache:Cache test(sets, blocks, bytes);
     return 0;
 }

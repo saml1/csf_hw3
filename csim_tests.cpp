@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include "tctestpp.h"
 #include "csim_io.h"
+#include "cache.h"
 
 // test fixture object
 typedef struct {
@@ -26,6 +27,7 @@ void cleanup(TestObjs *objs) {
 
 // Prototypes for test functions
 void testGetInput(TestObjs *objs);
+void testReadStringFromSetStructure(TestObjs *objs);
 
 int main(int argc, char **argv) {
     if (argc > 1) {
@@ -35,6 +37,8 @@ int main(int argc, char **argv) {
     TEST_INIT();
 
     TEST(testGetInput);
+
+    TEST(testReadStringFromSetStructure);
 
     TEST_FINI();
 
@@ -50,4 +54,12 @@ void testGetInput(TestObjs *objs) {
     //std::cout << "char: " <<  std::get<0>(input[0]) << "\n";
     //std::cout << "string: " <<  std::get<1>(input[0]) << "\n";
     //std::cout << "int: " <<  std::get<2>(input[0]) << "\n";
+}
+
+void testReadStringFromSetStructure(TestObjs *objs) {
+    std::vector<std::string> a = {"hello"};
+    std::pair<int, std::vector<std::string>> b (2, a);
+    std::vector<std::pair<int, std::vector<std::string>>> c = {b};
+    std::vector<std::vector<std::pair<int, std::vector<std::string>>>> d = {c};
+    std::cout << d.at(0).at(0).second.at(0);
 }
