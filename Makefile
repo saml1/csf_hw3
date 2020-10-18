@@ -3,7 +3,7 @@
 #
 
 
-CFLAGS = -g -Og -Wall -Wextra -pedantic -std=c++20
+CFLAGS = -g -Og -Wall -Wextra -pedantic -std=c++17
 
 %.o : %.cpp
 	g++ $(CFLAGS) -c $<
@@ -12,7 +12,7 @@ all : csim
 
 
 csim: csim_io.o csim_main.o cache.o
-	g++ -o $@ $(CFLAGS) csim_io.o csim_main.o
+	g++ -o $@ $(CFLAGS) csim_io.o csim_main.o cache.o
 
 
 csim_tests : csim_io.o csim_tests.o tctestpp.o
