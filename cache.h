@@ -16,7 +16,9 @@ private:
 
 public:
     Cache(int sets, int blocks, int bytes);
-
+    int getNumSets();
+    int getNumBlocks();
+    int getNumBytes();
 };
 
 

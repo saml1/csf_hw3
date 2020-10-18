@@ -23,7 +23,17 @@ Cache::Cache(int sets, int blocks, int bytes){
     std::vector<std::vector<std::pair<int, std::vector<std::string>>>> d = {c};
     this->sets.push_back(c);
     std::cout << this->sets.at(0).at(0).second.at(0);*/
+}
 
+int Cache::getNumSets(){
+  return numSets;
+}
+
+int Cache::getNumBlocks(){
+    return numBlocks;
+}
+int Cache::getNumBytes(){
+    return numBytes;
 }
 
 

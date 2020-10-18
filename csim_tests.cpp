@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <cassert>
+#include<iostream>
 #include "tctestpp.h"
 #include "csim_io.h"
 #include "cache.h"
@@ -28,6 +30,7 @@ void cleanup(TestObjs *objs) {
 // Prototypes for test functions
 void testGetInput(TestObjs *objs);
 void testReadStringFromSetStructure(TestObjs *objs);
+void testIntFields(TestObjs *objs);
 
 int main(int argc, char **argv) {
     if (argc > 1) {
@@ -40,6 +43,8 @@ int main(int argc, char **argv) {
 
     TEST(testReadStringFromSetStructure);
 
+    TEST(testIntFields);
+
     TEST_FINI();
 
     return 0;
@@ -47,13 +52,10 @@ int main(int argc, char **argv) {
 
 void testGetInput(TestObjs *objs) {
     (void) objs; // suppress warning about unused parameter
-    std::cout << "\nEnter the following: s 0x1fffff50 1\n";
+    std::cout << "\nEnter the following (then press ctrl-d): s 0x1fffff50 1\n";
     std::vector<std::pair<char, std::string>> input = get_input();
-    std::cout << "char: " <<  input[0].first << "\n";
-    std::cout << "string: " <<  input[0].second << "\n";
-    //std::cout << "char: " <<  std::get<0>(input[0]) << "\n";
-    //std::cout << "string: " <<  std::get<1>(input[0]) << "\n";
-    //std::cout << "int: " <<  std::get<2>(input[0]) << "\n";
+    assert('s' == input[0].first);
+    assert(input[0].second.compare("1fffff50") == 0);
 }
 
 void testReadStringFromSetStructure(TestObjs *objs) {
@@ -61,5 +63,12 @@ void testReadStringFromSetStructure(TestObjs *objs) {
     std::pair<int, std::vector<std::string>> b (2, a);
     std::vector<std::pair<int, std::vector<std::string>>> c = {b};
     std::vector<std::vector<std::pair<int, std::vector<std::string>>>> d = {c};
-    std::cout << d.at(0).at(0).second.at(0);
+    assert(d.at(0).at(0).second.at(0).compare("hello") == 0);
+}
+
+void testIntFields(TestObjs *objs) {
+    Cache:Cache test(1, 2, 3);
+    assert(test.getNumSets() == 1);
+    assert(test.getNumBlocks() == 2);
+    assert(test.getNumBytes() == 3);
 }
