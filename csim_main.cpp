@@ -36,33 +36,25 @@ int main(int argc, char *argv[]) {
         printf("Argument count wrong.\n");
         return 1;
     }
+    std::string writeAllocate = argv[4];
+    std::string writeThrough = argv[5];
     std::string evictType = argv[6];
-    int sets = std::stoi(argv[1]);
-    int blocks = std::stoi(argv[2]);
-    int bytes = std::stoi(argv[3]);
-    if(!allValuesValid(sets, blocks, bytes)){
+    if(!allValuesValid(std::stoi(argv[1]), std::stoi(argv[2]), std::stoi(argv[3]))){
         return 1;
     }
-    Cache cache(sets, blocks, bytes);
+    Cache cache(std::stoi(argv[1]), std::stoi(argv[2]), std::stoi(argv[3]), writeAllocate.compare("write-allocate") == 0, writeThrough.compare("write-through") == 0, evictType.compare("lru") == 0);
     std::vector<std::pair<char, std::string>> inputs = get_input();
     for(std::pair<char, std::string> input : inputs){
         if(input.first == 'l'){ //if load
             if(cache.checkMemoryTrace(input.second)){ //if hit
-                if(evictType.compare("lru") == 0){ //must put recently accessed blocks in back
-                    cache.updateBlockOrder(input.second);
-                }
-                cache.inc_lh(); //also increments cycles
+                cache.inc_lh(input.second); //increases load hits, etc
             } else { //if miss
-                cache.inc_lm();
-                if(!cache.cacheFull(input.second)){ //if cache isn't full
-                    cache.addBlock(input.second);
-                }else{ //cache is full
-                    cache.replace(input.second);
-                }
+                cache.inc_lm(input.second); //increases load misses, etc
             }
         }else{ //if store
             if(cache.checkMemoryTrace(input.second)){ //if hit
                 cache.inc_sh();
+                //TODO: everything for store (have it deal with parameters, etc)
             }
         }
     }

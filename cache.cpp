@@ -14,7 +14,7 @@
     char name[5];
 };*/
 
-Cache::Cache(int sets, int blocks, int bytes){
+Cache::Cache(int sets, int blocks, int bytes, bool writeAllocate, bool writeThrough, bool lru){
     numSets = sets;
     numBlocks = blocks;
     numBytes = bytes;
@@ -25,7 +25,9 @@ Cache::Cache(int sets, int blocks, int bytes){
     cycles = 0;
     std::vector<std::vector<std::pair<bool, std::vector<std::string>>>> allSets(numSets);
     this->sets = allSets;
-
+    this->writeAllocate = writeAllocate;
+    this->writeThrough = writeThrough;
+    this->lru = lru;
 
 }
 
@@ -49,16 +51,24 @@ void Cache::printInfo(){
     std:: cout << "Total cycles: " << cycles << "\n";
 }
 
-void Cache::inc_lh(){
+void Cache::inc_lh(std::string trace){
+    if(lru){ //must put recently accessed blocks in back
+        updateBlockOrder(trace);
+    }
     load_hit++;
     cycles++;
 }
-void Cache::inc_lm(){
+void Cache::inc_lm(std::string trace){
     load_miss++;
+    if(!cacheFull(trace)){ //if cache isn't full
+        addBlock(trace);
+    }else{ //cache is full
+        replace(trace);
+    }
 }
 void Cache::inc_sh(){
     store_hit++;
-    //cycles++;
+    cycles++;
 }
 void Cache::inc_sm(){
     store_miss++;
@@ -139,6 +149,9 @@ void Cache::updateBlockOrder(std::string trace){
 }
 
 void Cache::replace(std::string trace){
+    if(sets.at(getSet(trace)).at(0).first) { //it's a dirty block
+        cycles += 100 * numBytes / 4;
+    }
     sets.at(getSet(trace)).erase(sets.at(getSet(trace)).begin());
     //sets.at(getSet(trace)).push_back(createBlock(trace));
     addBlock(trace);
