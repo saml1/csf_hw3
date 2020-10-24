@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cassert>
-#include<iostream>
+#include <iostream>
 #include "tctestpp.h"
 #include "csim_io.h"
 #include "cache.h"
@@ -31,6 +31,8 @@ void cleanup(TestObjs *objs) {
 void testGetInput(TestObjs *objs);
 void testReadStringFromSetStructure(TestObjs *objs);
 void testIntFields(TestObjs *objs);
+void testGetSet(TestObjs *objs);
+void testGetTag(TestObjs *objs);
 
 int main(int argc, char **argv) {
     if (argc > 1) {
@@ -44,6 +46,10 @@ int main(int argc, char **argv) {
     TEST(testReadStringFromSetStructure);
 
     TEST(testIntFields);
+
+    TEST(testGetSet);
+
+    TEST(testGetTag);
 
     TEST_FINI();
 
@@ -71,4 +77,14 @@ void testIntFields(TestObjs *objs) {
     assert(test.getNumSets() == 1);
     assert(test.getNumBlocks() == 2);
     assert(test.getNumBytes() == 3);
+}
+
+void testGetSet(TestObjs *objs){
+    Cache:Cache test(256, 4, 15);
+    assert(test.getSet("1fffff50") == 212);
+}
+
+void testGetTag(TestObjs *objs){
+    Cache:Cache test(256, 4, 15);
+    assert(test.getTag("1fffff50") == 524287);
 }

@@ -7,16 +7,11 @@
 #include <string>
 #include <cmath>
 
-/*struct Cache{
- //TODO: define structure
-};*/
-
 int isValid(int val){
     if(val <= 0){
         return 0;
     }
     return (val & (val-1)) == 0;
-
 }
 
 int allValuesValid(int sets, int blocks, int bytes){
@@ -48,10 +43,25 @@ int main(int argc, char *argv[]) {
     if(!allValuesValid(sets, blocks, bytes)){
         return 1;
     }
-    int offset_bits = log2(blocks);
-    int index_bits = log2(sets);
-    int tag_bits = 32 - offset_bits - index_bits;
+    int load_hit = 0;
+    int load_miss = 0;
+    int store_hit = 0;
+    int store_miss = 0;
+    Cache cache(sets, blocks, bytes);
+    std::vector<std::pair<char, std::string>> inputs = get_input();
+    for(std::pair<char, std::string> input : inputs){
+        if(input.first == 'l'){ //if load
+            if(cache.checkMemoryTrace(input.second)){ //if hit
+                load_hit++;
+            } else { //if miss
+                load_miss++;
 
-    Cache:Cache test(sets, blocks, bytes);
+            }
+        }else{ //if store
+
+        }
+    }
+    std::cout << "load hits: " << load_hit << "load miss" << load_miss;
+    //std::cout << cache.getTag("1fffff50");
     return 0;
 }

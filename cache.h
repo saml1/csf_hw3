@@ -19,6 +19,10 @@ public:
     int getNumSets();
     int getNumBlocks();
     int getNumBytes();
+    int getSet(std::string trace);
+    int getTag(std::string trace);
+    bool checkMemoryTrace(std::string trace);
+    bool Cache::cacheFull(int set);
 };
 
 
