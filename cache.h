@@ -11,7 +11,7 @@
 
 class Cache{
 private:
-    int numSets, numBlocks, numBytes;
+    int numSets, numBlocks, numBytes, load_hit, load_miss, store_hit, store_miss, cycles;
     std::vector<std::vector<std::pair<int, std::vector<std::string>>>> sets;
 
 public:
@@ -19,10 +19,15 @@ public:
     int getNumSets();
     int getNumBlocks();
     int getNumBytes();
+    void printInfo();
+    void inc_lh();
+    void inc_lm();
     int getSet(std::string trace);
     int getTag(std::string trace);
     bool checkMemoryTrace(std::string trace);
-    bool Cache::cacheFull(int set);
+    bool cacheFull(std::string trace);
+    void addBlock(std::string trace);
+    std::pair<int, std::vector<std::string>> createBlock(std:: string trace);
 };
 
 

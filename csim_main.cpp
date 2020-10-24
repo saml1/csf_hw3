@@ -36,32 +36,43 @@ int main(int argc, char *argv[]) {
         printf("Argument count wrong.\n");
         return 1;
     }
-
+    std::string evictType = argv[6];
     int sets = std::stoi(argv[1]);
     int blocks = std::stoi(argv[2]);
     int bytes = std::stoi(argv[3]);
     if(!allValuesValid(sets, blocks, bytes)){
         return 1;
     }
-    int load_hit = 0;
+    /*int load_hit = 0;
     int load_miss = 0;
     int store_hit = 0;
-    int store_miss = 0;
+    int store_miss = 0;*/
     Cache cache(sets, blocks, bytes);
     std::vector<std::pair<char, std::string>> inputs = get_input();
     for(std::pair<char, std::string> input : inputs){
         if(input.first == 'l'){ //if load
             if(cache.checkMemoryTrace(input.second)){ //if hit
-                load_hit++;
-            } else { //if miss
-                load_miss++;
+                //load_hit++;
+                if(evictType.compare("lru") == 0){
 
+                }
+                cache.inc_lh();
+            } else { //if miss
+                cache.inc_lm();
+                //load_miss++;
+                if(!cache.cacheFull(input.second)){ //if cache isn't full
+                    cache.addBlock(input.second);
+                    //std::cout << "notfull";
+                }else{ //cache is full
+
+                }
             }
         }else{ //if store
 
         }
     }
-    std::cout << "load hits: " << load_hit << "load miss" << load_miss;
+    //std::cout << "load hits: " << load_hit << "load miss" << load_miss;
     //std::cout << cache.getTag("1fffff50");
+    cache.printInfo();
     return 0;
 }
