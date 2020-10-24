@@ -23,7 +23,7 @@ Cache::Cache(int sets, int blocks, int bytes){
     store_miss = 0;
     store_hit = 0;
     cycles = 0;
-    std::vector<std::vector<std::pair<int, std::vector<std::string>>>> allSets(numSets);
+    std::vector<std::vector<std::pair<bool, std::vector<std::string>>>> allSets(numSets);
     this->sets = allSets;
 
 
@@ -56,6 +56,13 @@ void Cache::inc_lh(){
 void Cache::inc_lm(){
     load_miss++;
 }
+void Cache::inc_sh(){
+    store_hit++;
+    //cycles++;
+}
+void Cache::inc_sm(){
+    store_miss++;
+}
 int Cache::getSet(std::string trace){
     int index_bits = log2(numSets);
     int offset_bits = log2(numBlocks);
@@ -78,7 +85,7 @@ int Cache::getTag(std::string trace){
 
 bool Cache::checkMemoryTrace(std::string trace) { //true if hit
     int traceTag = getTag(trace);
-    for(std::pair<int, std::vector<std::string>> block : sets.at(getSet(trace))){
+    for(std::pair<bool, std::vector<std::string>> block : sets.at(getSet(trace))){
         for(std::string t : block.second){
             if(getTag(t) == traceTag){
                 return true;
@@ -99,9 +106,10 @@ bool Cache::cacheFull(std::string trace){ //checking if there's a block in the s
 void Cache::addBlock(std::string trace){
     //sets.at(getSet(trace)).insert(createBlock(trace));
     sets.at(getSet(trace)).push_back(createBlock(trace));
+    cycles += 100 * numBytes / 4;
 }
 
-std::pair<int, std::vector<std::string>> Cache::createBlock(std:: string trace){
+std::pair<bool, std::vector<std::string>> Cache::createBlock(std:: string trace){
     std::vector<std::string> traces(numBytes / 4);
     std::string indexString = "0x" + trace;
     uint32_t address = stol(indexString, nullptr, 0);
@@ -112,15 +120,26 @@ std::pair<int, std::vector<std::string>> Cache::createBlock(std:: string trace){
         traces.assign(i, result);
         address++;
     }
-    cycles += 100 * numBytes / 4;
-    return std::make_pair(0, traces);
+    return std::make_pair(false, traces);
 }
 
-/*void Cache::evict(std::string trace, std::string type){
+void Cache::updateBlockOrder(std::string trace){
+    int traceTag = getTag(trace);
+    std::pair<bool, std::vector<std::string>> temp;
+    //bool found = false;
+    for(int i = 0; i < (int) sets.at(getSet(trace)).size(); i++){
+        for(std::string t : sets.at(getSet(trace)).at(i).second){
+            if(getTag(t) == traceTag){
+                temp = sets.at(getSet(trace)).at(i);
+                sets.at(getSet(trace)).erase(sets.at(getSet(trace)).begin() + i);
+                sets.at(getSet(trace)).push_back(temp);
+            }
+        }
+    }
+}
 
-}*/
-
-
-/*void Cache::updateBlockOrder(std::string trace){
-
-}*/
+void Cache::replace(std::string trace){
+    sets.at(getSet(trace)).erase(sets.at(getSet(trace)).begin());
+    //sets.at(getSet(trace)).push_back(createBlock(trace));
+    addBlock(trace);
+}

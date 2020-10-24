@@ -43,36 +43,29 @@ int main(int argc, char *argv[]) {
     if(!allValuesValid(sets, blocks, bytes)){
         return 1;
     }
-    /*int load_hit = 0;
-    int load_miss = 0;
-    int store_hit = 0;
-    int store_miss = 0;*/
     Cache cache(sets, blocks, bytes);
     std::vector<std::pair<char, std::string>> inputs = get_input();
     for(std::pair<char, std::string> input : inputs){
         if(input.first == 'l'){ //if load
             if(cache.checkMemoryTrace(input.second)){ //if hit
-                //load_hit++;
-                if(evictType.compare("lru") == 0){
-
+                if(evictType.compare("lru") == 0){ //must put recently accessed blocks in back
+                    cache.updateBlockOrder(input.second);
                 }
-                cache.inc_lh();
+                cache.inc_lh(); //also increments cycles
             } else { //if miss
                 cache.inc_lm();
-                //load_miss++;
                 if(!cache.cacheFull(input.second)){ //if cache isn't full
                     cache.addBlock(input.second);
-                    //std::cout << "notfull";
                 }else{ //cache is full
-
+                    cache.replace(input.second);
                 }
             }
         }else{ //if store
-
+            if(cache.checkMemoryTrace(input.second)){ //if hit
+                cache.inc_sh();
+            }
         }
     }
-    //std::cout << "load hits: " << load_hit << "load miss" << load_miss;
-    //std::cout << cache.getTag("1fffff50");
     cache.printInfo();
     return 0;
 }
