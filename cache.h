@@ -27,7 +27,7 @@ public:
     bool checkMemoryTrace(std::string trace);
     bool cacheFull(std::string * trace);
     void addBlock(std::string * trace);
-    std::pair<bool, std::vector<std::string>> createBlock(std:: string * trace);
+    std::pair<bool, std::vector<std::string>> createBlock(std:: string * trace) const;
     void updateBlockOrder(std::string * trace);
     void replace(std::string * trace);
 };

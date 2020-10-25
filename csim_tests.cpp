@@ -7,7 +7,6 @@
 #include <cassert>
 #include <iostream>
 #include "tctestpp.h"
-#include "csim_io.h"
 #include "cache.h"
 
 // test fixture object

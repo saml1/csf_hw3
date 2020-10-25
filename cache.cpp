@@ -62,7 +62,7 @@ void Cache::inc_sm(){
 int Cache::getSet(std::string * trace) const{
     int index_bits = (int) log2(numSets);
     int offset_bits = (int) log2(numBlocks);
-    int tag_bits = 32 - offset_bits - index_bits;
+    uint32_t tag_bits = 32 - offset_bits - index_bits;
     std::string indexString = "0x" + *trace;
     uint32_t address = stol(indexString, nullptr, 0);
     uint32_t index = address << tag_bits;
@@ -72,8 +72,8 @@ int Cache::getSet(std::string * trace) const{
 }
 
 int Cache::getTag(std::string * trace) const{
-    int index_bits = log2(numSets);
-    int offset_bits = log2(numBlocks);
+    uint32_t index_bits = log2(numSets);
+    uint32_t offset_bits = log2(numBlocks);
     std::string indexString = "0x" + *trace;
     uint32_t address = stol(indexString, nullptr, 0);
     return address >> (index_bits + offset_bits);
@@ -105,7 +105,7 @@ void Cache::addBlock(std::string * trace){
     cycles += 100 * numBytes / 4;
 }
 
-std::pair<bool, std::vector<std::string>> Cache::createBlock(std:: string * trace){
+std::pair<bool, std::vector<std::string>> Cache::createBlock(std:: string * trace) const{
     std::vector<std::string> traces(numBytes / 4);
     std::string indexString = "0x" + *trace;
     uint32_t address = stol(indexString, nullptr, 0);
