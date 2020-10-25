@@ -6,9 +6,9 @@
 #include "cache.h"
 #include <string>
 
-int isValid(int val){
+bool isValid(unsigned val){
     if(val <= 0){
-        return 0;
+        return false;
     }
     return (val & (val-1)) == 0;
 }
@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
     bool allocate = writeAllocate == "write-allocate";
     bool through = writeThrough == "write-through";
 
-    Cache cache(std::stoi(argv[1]), std::stoi(argv[2]), std::stoi(argv[3]), allocate, , evictType == "lru");
+    Cache cache(std::stoi(argv[1]), std::stoi(argv[2]), std::stoi(argv[3]), allocate, through, evictType == "lru");
     std::vector<std::pair<char, std::string>> inputs = get_input();
 
     for(auto & input : inputs){
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
             if(cache.checkMemoryTrace(input.second)){ //if hit
                 cache.inc_sh(&input.second);
             } else {
-                cache.inc_sm();
+                cache.inc_sm(&input.second);
             }
         }
     }
