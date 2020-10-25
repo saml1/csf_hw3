@@ -52,12 +52,25 @@ void Cache::inc_lm(std::string * trace){
         replace(trace);
     }
 }
-void Cache::inc_sh(){
+void Cache::inc_sh(std::string * trace){
     store_hit++;
+    if (this->writeAllocate) {
+        sets.at(getSet(trace)).at(0).first = true;
+    }
     cycles++;
 }
-void Cache::inc_sm(){
+void Cache::inc_sm(std::string * trace){
     store_miss++;
+    if (this->writeAllocate) {
+        sets.at(getSet(trace)).at(0).first = true;
+    }
+
+    if(!cacheFull(trace)){ //if cache isn't full
+        addBlock(trace);
+    }else{ //cache is full
+        replace(trace);
+    }
+
 }
 int Cache::getSet(std::string * trace) const{
     int index_bits = (int) log2(numSets);
@@ -81,7 +94,7 @@ int Cache::getTag(std::string * trace) const{
 
 bool Cache::checkMemoryTrace(std::string trace) { //true if hit
     int traceTag = getTag(&trace);
-    for(std::pair<bool, std::vector<std::string>> block : sets.at(getSet(&trace))){
+    for(const std::pair<bool, std::vector<std::string>>& block : sets.at(getSet(&trace))){
         for(std::string t : block.second){
             if(getTag(&t) == traceTag){
                 return true;

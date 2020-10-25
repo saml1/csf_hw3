@@ -20,8 +20,8 @@ public:
     void printInfo() const;
     void inc_lh(std::string * trace);
     void inc_lm(std::string * trace);
-    void inc_sh();
-    void inc_sm();
+    void inc_sh(std::string * trace);
+    void inc_sm(std::string * trace);
     int getSet(std::string * trace) const;
     int getTag(std::string * trace) const;
     bool checkMemoryTrace(std::string trace);

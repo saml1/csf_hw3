@@ -60,10 +60,14 @@ int main(int argc, char *argv[]) {
     if(!allValuesValid(std::stoi(argv[1]), std::stoi(argv[2]), std::stoi(argv[3]))){
         return 1;
     }
-    Cache cache(std::stoi(argv[1]), std::stoi(argv[2]), std::stoi(argv[3]), writeAllocate == "write-allocate", writeThrough == "write-through", evictType == "lru");
+
+    bool allocate = writeAllocate == "write-allocate";
+    bool through = writeThrough == "write-through";
+
+    Cache cache(std::stoi(argv[1]), std::stoi(argv[2]), std::stoi(argv[3]), allocate, , evictType == "lru");
     std::vector<std::pair<char, std::string>> inputs = get_input();
 
-    for(std::pair<char, std::string> input : inputs){
+    for(auto & input : inputs){
         if(input.first == 'l'){ //if load
             if(cache.checkMemoryTrace(input.second)){ //if hit
                 cache.inc_lh(&input.second); //increases load hits, etc
@@ -72,8 +76,9 @@ int main(int argc, char *argv[]) {
             }
         }else{ //if store
             if(cache.checkMemoryTrace(input.second)){ //if hit
-                cache.inc_sh();
-                //TODO: everything for store (have it deal with parameters, etc)
+                cache.inc_sh(&input.second);
+            } else {
+                cache.inc_sm();
             }
         }
     }
