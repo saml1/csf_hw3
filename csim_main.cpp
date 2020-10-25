@@ -2,16 +2,34 @@
 // Created by Sam Lipschitz and Tadeusz Sikorski on 10/12/20.
 //
 
-#include "csim_io.h"
+#include <iostream>
 #include "cache.h"
 #include <string>
-#include <cmath>
 
 int isValid(int val){
     if(val <= 0){
         return 0;
     }
     return (val & (val-1)) == 0;
+}
+
+std::vector<std::pair<char, std::string>> get_input() {
+
+    std::vector<std::pair<char, std::string>> output;
+
+    /*  s 0x1fffff50 1
+        l 0x1fffff58 1
+        l 0x1fffff88 6
+        l 0x1fffff90 2
+        l 0x1fffff98 2
+        l 0x200000e0 2 */
+
+    for (std::string input; std::getline(std::cin, input); ) {
+        auto temp = std::make_pair(input[0], input.substr(4, 8));
+        output.emplace_back(temp);
+    }
+
+    return output;
 }
 
 int allValuesValid(int sets, int blocks, int bytes){
@@ -42,14 +60,15 @@ int main(int argc, char *argv[]) {
     if(!allValuesValid(std::stoi(argv[1]), std::stoi(argv[2]), std::stoi(argv[3]))){
         return 1;
     }
-    Cache cache(std::stoi(argv[1]), std::stoi(argv[2]), std::stoi(argv[3]), writeAllocate.compare("write-allocate") == 0, writeThrough.compare("write-through") == 0, evictType.compare("lru") == 0);
+    Cache cache(std::stoi(argv[1]), std::stoi(argv[2]), std::stoi(argv[3]), writeAllocate == "write-allocate", writeThrough == "write-through", evictType == "lru");
     std::vector<std::pair<char, std::string>> inputs = get_input();
+
     for(std::pair<char, std::string> input : inputs){
         if(input.first == 'l'){ //if load
             if(cache.checkMemoryTrace(input.second)){ //if hit
-                cache.inc_lh(input.second); //increases load hits, etc
+                cache.inc_lh(&input.second); //increases load hits, etc
             } else { //if miss
-                cache.inc_lm(input.second); //increases load misses, etc
+                cache.inc_lm(&input.second); //increases load misses, etc
             }
         }else{ //if store
             if(cache.checkMemoryTrace(input.second)){ //if hit

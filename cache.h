@@ -17,22 +17,19 @@ private:
 
 public:
     Cache(int sets, int blocks, int bytes, bool writeAllocate, bool writeThrough, bool lru);
-    int getNumSets();
-    int getNumBlocks();
-    int getNumBytes();
-    void printInfo();
-    void inc_lh(std::string trace);
-    void inc_lm(std::string trace);
+    void printInfo() const;
+    void inc_lh(std::string * trace);
+    void inc_lm(std::string * trace);
     void inc_sh();
     void inc_sm();
-    int getSet(std::string trace);
-    int getTag(std::string trace);
+    int getSet(std::string * trace) const;
+    int getTag(std::string * trace) const;
     bool checkMemoryTrace(std::string trace);
-    bool cacheFull(std::string trace);
-    void addBlock(std::string trace);
-    std::pair<bool, std::vector<std::string>> createBlock(std:: string trace);
-    void updateBlockOrder(std::string trace);
-    void replace(std::string trace);
+    bool cacheFull(std::string * trace);
+    void addBlock(std::string * trace);
+    std::pair<bool, std::vector<std::string>> createBlock(std:: string * trace);
+    void updateBlockOrder(std::string * trace);
+    void replace(std::string * trace);
 };
 
 
