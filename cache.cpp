@@ -20,6 +20,15 @@ Cache::Cache(int sets, int blocks, int bytes, bool writeAllocate, bool writeThro
     store_hit = 0;
     cycles = 0;
     std::vector<std::vector<std::pair<bool, std::vector<std::string>>>> allSets(numSets);
+    for(std::vector<std::pair<bool, std::vector<std::string>>> set : allSets){
+        std::vector<std::pair<bool, std::vector<std::string>>> emptySet (numBlocks);
+        set = emptySet;
+        for(std::pair<bool, std::vector<std::string>> block : set){
+            std::vector<std::string> temp (numBytes / 4);
+            block.second = temp;
+        }
+    }
+
     this->sets = allSets;
     this->writeAllocate = writeAllocate;
     this->writeThrough = writeThrough;

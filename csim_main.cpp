@@ -37,12 +37,12 @@ int allValuesValid(int sets, int blocks, int bytes){
         printf("Invalid set value.\n");
         return 0;
     }
-    if(!isValid(blocks) || blocks < 4){
+    if(!isValid(blocks)){
         printf("Invalid block value.\n");
         return 0;
     }
 
-    if(!isValid(bytes)){
+    if(!isValid(bytes) || bytes < 4){
         printf("Invalid byte value.\n");
         return 0;
     }
@@ -68,10 +68,14 @@ int main(int argc, char *argv[]) {
     std::vector<std::pair<char, std::string>> inputs = get_input();
 
     for(auto & input : inputs){
+        //std::cout << input.second << "\n" << std::endl;
         if(input.first == 'l'){ //if load
             if(cache.checkMemoryTrace(input.second)){ //if hit
+                //std::cout << "hit\n";
                 cache.inc_lh(&input.second); //increases load hits, etc
             } else { //if miss
+                //std::cout << input.second << "\n" << std::endl;
+                //std::cout << "miss\n";
                 cache.inc_lm(&input.second); //increases load misses, etc
             }
         }else{ //if store
