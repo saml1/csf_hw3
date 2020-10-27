@@ -30,6 +30,8 @@ public:
     std::pair<bool, std::vector<std::string>> createBlock(std:: string * trace) const;
     void updateBlockOrder(std::string * trace);
     void replace(std::string * trace);
+
+    int findTag(std::string * trace);
 };
 
 

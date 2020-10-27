@@ -55,7 +55,7 @@ void Cache::inc_lm(std::string * trace){
 void Cache::inc_sh(std::string * trace){
     store_hit++;
     if (!this->writeThrough) {
-        sets.at(getSet(trace)).at(0).first = true;
+        sets.at(getSet(trace)).at(findTag(trace)).first = true;
     }
     cycles++;
 }
@@ -69,10 +69,25 @@ void Cache::inc_sm(std::string * trace){
         }
     }
     if (!this->writeThrough) {
-        sets.at(getSet(trace)).at(0).first = true;
+        sets.at(getSet(trace)).at(findTag(trace)).first = true;
     }
 
 }
+
+int Cache::findTag(std::string * trace) {
+    int traceTag = getTag(trace);
+    std::pair<bool, std::vector<std::string>> temp;
+    //bool found = false;
+    for(int i = 0; i < (int) sets.at(getSet(trace)).size(); i++){
+        for(std::string t : sets.at(getSet(trace)).at(i).second){
+            if(getTag(&t) == traceTag){
+                return i;
+            }
+        }
+    }
+    return 0;
+}
+
 int Cache::getSet(std::string * trace) const{
     int index_bits = (int) log2(numSets);
     int offset_bits = (int) log2(numBytes);
@@ -149,7 +164,7 @@ void Cache::updateBlockOrder(std::string * trace){
 }
 
 void Cache::replace(std::string * trace){
-    if(sets.at(getSet(trace)).at(0).first) { //it's a dirty block
+    if(sets.at(getSet(trace)).at(findTag(trace)).first) { //it's a dirty block
         cycles += 100 * numBytes / 4;
     }
     sets.at(getSet(trace)).erase(sets.at(getSet(trace)).begin());
