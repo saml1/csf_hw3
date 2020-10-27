@@ -61,14 +61,14 @@ void Cache::inc_sh(std::string * trace){
 }
 void Cache::inc_sm(std::string * trace){
     store_miss++;
-    if (this->writeAllocate) {
-        sets.at(getSet(trace)).at(0).first = true;
-    }
 
     if(!cacheFull(trace)){ //if cache isn't full
         addBlock(trace);
     }else{ //cache is full
         replace(trace);
+    }
+    if (this->writeAllocate) {
+        sets.at(getSet(trace)).at(0).first = true;
     }
 
 }
