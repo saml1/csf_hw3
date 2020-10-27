@@ -54,27 +54,28 @@ void Cache::inc_lm(std::string * trace){
 }
 void Cache::inc_sh(std::string * trace){
     store_hit++;
-    if (this->writeAllocate) {
+    if (!this->writeThrough) {
         sets.at(getSet(trace)).at(0).first = true;
     }
     cycles++;
 }
 void Cache::inc_sm(std::string * trace){
     store_miss++;
-
-    if(!cacheFull(trace)){ //if cache isn't full
-        addBlock(trace);
-    }else{ //cache is full
-        replace(trace);
-    }
     if (this->writeAllocate) {
+        if (!cacheFull(trace)) { //if cache isn't full
+            addBlock(trace);
+        } else { //cache is full
+            replace(trace);
+        }
+    }
+    if (!this->writeThrough) {
         sets.at(getSet(trace)).at(0).first = true;
     }
 
 }
 int Cache::getSet(std::string * trace) const{
     int index_bits = (int) log2(numSets);
-    int offset_bits = (int) log2(numBlocks);
+    int offset_bits = (int) log2(numBytes);
     uint32_t tag_bits = 32 - offset_bits - index_bits;
     std::string indexString = "0x" + *trace;
     uint32_t address = stol(indexString, nullptr, 0);
@@ -86,7 +87,7 @@ int Cache::getSet(std::string * trace) const{
 
 int Cache::getTag(std::string * trace) const{
     uint32_t index_bits = log2(numSets);
-    uint32_t offset_bits = log2(numBlocks);
+    uint32_t offset_bits = log2(numBytes);
     std::string indexString = "0x" + *trace;
     uint32_t address = stol(indexString, nullptr, 0);
     return address >> (index_bits + offset_bits);

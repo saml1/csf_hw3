@@ -49,3 +49,5 @@ Thumbs.db
 
 *.o
 csim_tests
+csim
+gcc.trace
