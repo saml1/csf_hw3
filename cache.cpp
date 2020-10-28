@@ -61,9 +61,13 @@ void Cache::inc_lm(std::string * trace){
     }else{ //cache is full
         replace(trace);
     }
+    cycles += 100 * numBytes / 4;
 }
 void Cache::inc_sh(std::string * trace){
     store_hit++;
+    if (lru) {
+        updateBlockOrder(trace);
+    }
     if (!this->writeThrough) {
         sets.at(getSet(trace)).at(findTag(trace)).first = true;
     }
@@ -72,15 +76,25 @@ void Cache::inc_sh(std::string * trace){
 void Cache::inc_sm(std::string * trace){
     store_miss++;
     if (this->writeAllocate) {
+        //std::cout << * trace << " tag:" << getTag(trace) << " set: " << getSet(trace)  << " find : " << findTag(trace)<<"\n";
         if (!cacheFull(trace)) { //if cache isn't full
+            //std::cout << "full\n";
             addBlock(trace);
         } else { //cache is full
             replace(trace);
         }
     }
+    //std::cout << "passed replace\n";
+    cycles++;
     if (!this->writeThrough) {
+        //std::cout << * trace << " tag:" << getTag(trace) << " set: " << getSet(trace)  << " find : " << findTag(trace)<<"\n";
         sets.at(getSet(trace)).at(findTag(trace)).first = true;
     }
+    else {
+        cycles += 100 * (numBytes / 4);
+    }
+
+    //std::cout << "end miss \n";
 
 }
 
@@ -98,15 +112,17 @@ int Cache::findTag(std::string * trace) {
     return 0;
 }
 
-int Cache::getSet(std::string * trace) const{
+uint32_t Cache::getSet(std::string * trace) const{
     int index_bits = (int) log2(numSets);
     int offset_bits = (int) log2(numBytes);
-    uint32_t tag_bits = 32 - offset_bits - index_bits;
+    int tag_bits = 32 - offset_bits - index_bits;
     std::string indexString = "0x" + *trace;
     uint32_t address = stol(indexString, nullptr, 0);
-    uint32_t index = address << tag_bits;
+    //std::cout << "addressN:" << address << "\n";
+    uint64_t index = address << tag_bits;
+    //std::cout << "rshift:" << index << "\n";
     index = index >> (tag_bits + offset_bits);
-    //std::cout << "indexB: " << index_bits << " offset:" << offset_bits << "index:" << index << "\n";
+    //std::cout << "tagB: " << tag_bits << "indB:"<<index_bits << " offset:" << offset_bits << "index:" << index << "\n";
 
     return index;
 
@@ -117,11 +133,17 @@ int Cache::getTag(std::string * trace) const{
     uint32_t offset_bits = (int) log2(numBytes);
     std::string indexString = "0x" + *trace;
     uint32_t address = stol(indexString, nullptr, 0);
+    //std::cout << "indexB: " << index_bits << " offset:" << offset_bits  <<"address :" << (address >> (index_bits + offset_bits) )<< "\n";
     return address >> (index_bits + offset_bits);
 }
 
 bool Cache::checkMemoryTrace(std::string trace) { //true if hit
     int traceTag = getTag(&trace);
+    //std::cout << "checked\n";
+    //getTag(&trace);
+//    std::cout << trace << " tag:";
+//    std::cout << getTag(&trace) << " set: " << getSet(&trace)  << " find : " << findTag(&trace)<<"\n";
+    //std::cout << sets.at(getSet(&trace)).size() << "\n";
     // const std::pair<bool, std::vector<std::string>>& block : sets.at(getSet(&trace))
     for(unsigned long i = 0; i < sets.at(getSet(&trace)).size(); i++){
         for(std::string t : sets.at(getSet(&trace)).at(i).second){
@@ -191,17 +213,23 @@ void Cache::updateBlockOrder(std::string * trace){
                 temp = sets.at(getSet(trace)).at(i);
                 sets.at(getSet(trace)).erase(sets.at(getSet(trace)).begin() + i);
                 sets.at(getSet(trace)).push_back(temp);
+                break;
             }
         }
     }
 }
 
 void Cache::replace(std::string * trace){ //delete first block, create new block and add to the end
+    //std::cout << * trace << " tag:" << getTag(trace) << " set: " << getSet(trace)  << " find : " << findTag(trace)<<"AA\n";
+
     if(sets.at(getSet(trace)).at(findTag(trace)).first) { //it's a dirty block
+        //std::cout << "dirty\n";
         cycles += 100 * numBytes / 4;
     }
+    //std::cout << sets.at(getSet(trace)).size() << "size \n";
     sets.at(getSet(trace)).erase(sets.at(getSet(trace)).begin());
     //sets.at(getSet(trace)).push_back(createBlock(trace));
+    //std::cout << "passed erase\n";
     addBlock(trace);
     //std::cout << "replace\n";
 }

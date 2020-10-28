@@ -66,9 +66,8 @@ int main(int argc, char *argv[]) {
 
     Cache cache(std::stoi(argv[1]), std::stoi(argv[2]), std::stoi(argv[3]), allocate, through, evictType == "lru");
     std::vector<std::pair<char, std::string>> inputs = get_input();
-
     for(auto & input : inputs){
-        //std::cout << input.second << "\n" << std::endl;
+        //std::cout << input.second << "\n";
         if(input.first == 'l'){ //if load
             if(cache.checkMemoryTrace(input.second)){ //if hit
                 //std::cout << "hit\n";
@@ -80,8 +79,10 @@ int main(int argc, char *argv[]) {
             }
         }else{ //if store
             if(cache.checkMemoryTrace(input.second)){ //if hit
+                //std::cout << "shit\n";
                 cache.inc_sh(&input.second);
             } else {
+                //std::cout << "smiss\n";
                 cache.inc_sm(&input.second);
             }
         }
