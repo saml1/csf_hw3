@@ -100,7 +100,7 @@ void Cache::inc_lm(std::string * trace){
         replace(trace);
     }
     // must go to main memory
-    cycles += 100 * numBytes / 4;
+    cycles += (100 * (numBytes / 4));
 }
 
 /*
@@ -139,24 +139,22 @@ void Cache::inc_sm(std::string * trace){
 
     //if saving stores to cache
     if (this->writeAllocate) {
+        // must go to memory
+        cycles += (100 * (numBytes / 4));
         if (!cacheFull(trace)) { //if cache isn't full
             addBlock(trace);
         } else { //cache is full
             replace(trace);
         }
     }
-    else {
-        // otherwise sending to main memory
-        cycles += 100 * (numBytes / 4);
-    }
 
-    cycles++;
     if (!this->writeThrough) {
         //write back only sets block as dirty
         sets.at(getSet(trace)).at(findTag(trace)).first = true;
     }
     else {
-        cycles += 100 * (numBytes / 4);
+        // writes to cache immediately
+        cycles += 100;
     }
 
 
@@ -296,8 +294,6 @@ void Cache::addBlock(std::string * trace){
     auto block = createBlock(trace);
     sets.at(getSet(trace)).push_back(block);
 
-    // by definition requires going to main memory
-    cycles += 100 * numBytes / 4;
 }
 
 
@@ -367,7 +363,7 @@ void Cache::updateBlockOrder(std::string * trace){
 void Cache::replace(std::string * trace){
 
     if(sets.at(getSet(trace)).at(findTag(trace)).first) { //it's a dirty block
-        cycles += 100 * numBytes / 4;
+        cycles += (100 * (numBytes / 4));
     }
     sets.at(getSet(trace)).erase(sets.at(getSet(trace)).begin());
     addBlock(trace);
