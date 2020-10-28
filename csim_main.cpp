@@ -1,11 +1,25 @@
-//
-// Created by Sam Lipschitz and Tadeusz Sikorski on 10/12/20.
-//
+/*
+ * Main and IO functions
+ * CSF Assignment 3
+ * Tadeusz Sikorski and Sam Lipschitz
+ * tsikors2@jhu.edu slipsch3@jhu.edu
+ */
+
 
 #include <iostream>
 #include "cache.h"
 #include <string>
 
+
+/*
+ * Tests if input int is valid.
+ *
+ * Parameters:
+ *   val - the input int
+ *
+ * Returns:
+ *   true if valid
+ */
 bool isValid(unsigned val){
     if(val <= 0){
         return false;
@@ -13,6 +27,16 @@ bool isValid(unsigned val){
     return (val & (val-1)) == 0;
 }
 
+
+/*
+ * Gets list of memory accesses and transforms into workable vector
+ *
+ * Parameters:
+ *
+ *
+ * Returns:
+ *   vector of pairs, where each pair is (load/miss, memory trace)
+ */
 std::vector<std::pair<char, std::string>> get_input() {
 
     std::vector<std::pair<char, std::string>> output;
@@ -32,6 +56,17 @@ std::vector<std::pair<char, std::string>> get_input() {
     return output;
 }
 
+/*
+ * Tests if all input ints are valid.
+ *
+ * Parameters:
+ *  sets - the count of sets
+ *  blocks - the count of blocks
+ *  bytes - the bytes per block
+ *
+ * Returns:
+ *   1 if valid
+ */
 int allValuesValid(int sets, int blocks, int bytes){
     if(!isValid(sets)){
         printf("Invalid set value.\n");
@@ -64,25 +99,21 @@ int main(int argc, char *argv[]) {
     bool allocate = writeAllocate == "write-allocate";
     bool through = writeThrough == "write-through";
 
-    Cache cache(std::stoi(argv[1]), std::stoi(argv[2]), std::stoi(argv[3]), allocate, through, evictType == "lru");
+    // Create cache object
+    Cache cache(std::stoi(argv[1]), std::stoi(argv[2]),
+                std::stoi(argv[3]), allocate, through, evictType == "lru");
     std::vector<std::pair<char, std::string>> inputs = get_input();
     for(auto & input : inputs){
-        //std::cout << input.second << "\n";
         if(input.first == 'l'){ //if load
             if(cache.checkMemoryTrace(input.second)){ //if hit
-                //std::cout << "hit\n";
                 cache.inc_lh(&input.second); //increases load hits, etc
             } else { //if miss
-                //std::cout << input.second << "\n" << std::endl;
-                //std::cout << "miss\n";
                 cache.inc_lm(&input.second); //increases load misses, etc
             }
         }else{ //if store
             if(cache.checkMemoryTrace(input.second)){ //if hit
-                //std::cout << "shit\n";
                 cache.inc_sh(&input.second);
-            } else {
-                //std::cout << "smiss\n";
+            } else { //if miss
                 cache.inc_sm(&input.second);
             }
         }

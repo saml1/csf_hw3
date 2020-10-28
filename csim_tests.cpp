@@ -29,7 +29,6 @@ void cleanup(TestObjs *objs) {
 // Prototypes for test functions
 void testGetInput(TestObjs *objs);
 void testReadStringFromSetStructure(TestObjs *objs);
-void testIntFields(TestObjs *objs);
 void testGetSet(TestObjs *objs);
 void testGetTag(TestObjs *objs);
 
@@ -44,7 +43,6 @@ int main(int argc, char **argv) {
 
     TEST(testReadStringFromSetStructure);
 
-    TEST(testIntFields);
 
     TEST(testGetSet);
 
@@ -55,14 +53,6 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-void testGetInput(TestObjs *objs) {
-    (void) objs; // suppress warning about unused parameter
-    std::cout << "\nEnter the following (then press ctrl-d): s 0x1fffff50 1\n";
-    std::vector<std::pair<char, std::string>> input = get_input();
-    assert('s' == input[0].first);
-    assert(input[0].second.compare("1fffff50") == 0);
-}
-
 void testReadStringFromSetStructure(TestObjs *objs) {
     std::vector<std::string> a = {"hello"};
     std::pair<int, std::vector<std::string>> b (2, a);
@@ -71,19 +61,3 @@ void testReadStringFromSetStructure(TestObjs *objs) {
     assert(d.at(0).at(0).second.at(0).compare("hello") == 0);
 }
 
-void testIntFields(TestObjs *objs) {
-    Cache:Cache test(1, 2, 3);
-    assert(test.getNumSets() == 1);
-    assert(test.getNumBlocks() == 2);
-    assert(test.getNumBytes() == 3);
-}
-
-void testGetSet(TestObjs *objs){
-    Cache:Cache test(256, 4, 15);
-    assert(test.getSet("1fffff50") == 212);
-}
-
-void testGetTag(TestObjs *objs){
-    Cache:Cache test(256, 4, 15);
-    assert(test.getTag("1fffff50") == 524287);
-}

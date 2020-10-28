@@ -1,6 +1,9 @@
-//
-// Created by Sam Lipschitz and Tadeusz Sikorski on 10/12/20.
-//
+/*
+ * Cache Class
+ * CSF Assignment 3
+ * Tadeusz Sikorski and Sam Lipschitz
+ * tsikors2@jhu.edu slipsch3@jhu.edu
+ */
 
 #include <iostream>
 #include <vector>
@@ -19,6 +22,12 @@ Cache::Cache(int sets, int blocks, int bytes, bool writeAllocate, bool writeThro
     store_miss = 0;
     store_hit = 0;
     cycles = 0;
+
+    // STRUCTURE:
+    // list of sets, which is each a list of blocks, each block contains a list of assigned memory locations
+    // each block is also marked dirty/clean, which is what the bool is for
+
+    // populates the cache structure
     std::vector<std::vector<std::pair<bool, std::vector<std::string>>>> allSets(numSets);
     for(std::vector<std::pair<bool, std::vector<std::string>>> set : allSets){
         std::vector<std::pair<bool, std::vector<std::string>>> emptySet (numBlocks);
@@ -36,6 +45,16 @@ Cache::Cache(int sets, int blocks, int bytes, bool writeAllocate, bool writeThro
 
 }
 
+
+/*
+ * Prints final data
+ *
+ * Parameters:
+ *
+ *
+ * Returns:
+ *   void
+ */
 void Cache::printInfo() const{
     std:: cout << "Total loads: " << load_hit+load_miss << "\n";
     std:: cout << "Total stores: " << store_hit+store_miss << "\n";
@@ -46,6 +65,16 @@ void Cache::printInfo() const{
     std:: cout << "Total cycles: " << cycles << "\n";
 }
 
+
+/*
+ * Logic for load hit
+ *
+ * Parameters:
+ *   trace - pointer to current trace being calculated
+ *
+ * Returns:
+ *
+ */
 void Cache::inc_lh(std::string * trace){
     if(lru){ //must put recently accessed blocks in back
         updateBlockOrder(trace);
@@ -53,57 +82,104 @@ void Cache::inc_lh(std::string * trace){
     load_hit++;
     cycles++;
 }
+
+/*
+ * Logic for load miss
+ *
+ * Parameters:
+ *   trace - pointer to current trace being calculated
+ *
+ * Returns:
+ *
+ */
 void Cache::inc_lm(std::string * trace){
     load_miss++;
     if(!cacheFull(trace)){ //if cache isn't full
-        //std::cout << "cache not full\n";
         addBlock(trace);
     }else{ //cache is full
         replace(trace);
     }
+    // must go to main memory
     cycles += 100 * numBytes / 4;
 }
+
+/*
+ * Logic for store hit
+ *
+ * Parameters:
+ *   trace - pointer to current trace being calculated
+ *
+ * Returns:
+ *
+ */
 void Cache::inc_sh(std::string * trace){
     store_hit++;
     if (lru) {
+        // must sort on hit
         updateBlockOrder(trace);
     }
     if (!this->writeThrough) {
+        // mark as dirty if write-back
         sets.at(getSet(trace)).at(findTag(trace)).first = true;
     }
     cycles++;
 }
+
+/*
+ * Logic for store miss
+ *
+ * Parameters:
+ *   trace - pointer to current trace being calculated
+ *
+ * Returns:
+ *
+ */
 void Cache::inc_sm(std::string * trace){
     store_miss++;
+
+    //if saving stores to cache
     if (this->writeAllocate) {
-        //std::cout << * trace << " tag:" << getTag(trace) << " set: " << getSet(trace)  << " find : " << findTag(trace)<<"\n";
         if (!cacheFull(trace)) { //if cache isn't full
-            //std::cout << "full\n";
             addBlock(trace);
         } else { //cache is full
             replace(trace);
         }
     }
-    //std::cout << "passed replace\n";
+    else {
+        // otherwise sending to main memory
+        cycles += 100 * (numBytes / 4);
+    }
+
     cycles++;
     if (!this->writeThrough) {
-        //std::cout << * trace << " tag:" << getTag(trace) << " set: " << getSet(trace)  << " find : " << findTag(trace)<<"\n";
+        //write back only sets block as dirty
         sets.at(getSet(trace)).at(findTag(trace)).first = true;
     }
     else {
         cycles += 100 * (numBytes / 4);
     }
 
-    //std::cout << "end miss \n";
 
 }
 
+
+/*
+ * Searches for particular tag in block
+ *
+ * Parameters:
+ *   trace - pointer to current trace being calculated
+ *
+ * Returns:
+ *   index of the found tag
+ */
 int Cache::findTag(std::string * trace) {
+
+    // get tag in trace
     int traceTag = getTag(trace);
     std::pair<bool, std::vector<std::string>> temp;
-    //bool found = false;
     for(int i = 0; i < (int) sets.at(getSet(trace)).size(); i++){
         for(std::string t : sets.at(getSet(trace)).at(i).second){
+            // for each object in the block
             if(getTag(&t) == traceTag){
                 return i;
             }
@@ -112,42 +188,71 @@ int Cache::findTag(std::string * trace) {
     return 0;
 }
 
+
+/*
+ * calculate the set of a trace
+ *
+ * Parameters:
+ *   trace - pointer to current trace being calculated
+ *
+ * Returns:
+ *   value of set bits in trace
+ *
+ */
 uint32_t Cache::getSet(std::string * trace) const{
-    int index_bits = (int) log2(numSets);
-    int offset_bits = (int) log2(numBytes);
-    int tag_bits = 32 - offset_bits - index_bits;
+    unsigned int index_bits = (int) log2(numSets);
+    unsigned int offset_bits = (int) log2(numBytes);
+    unsigned int tag_bits = 32U - offset_bits - index_bits;
+
     std::string indexString = "0x" + *trace;
     uint32_t address = stol(indexString, nullptr, 0);
-    //std::cout << "addressN:" << address << "\n";
-    uint64_t index = address << tag_bits;
-    //std::cout << "rshift:" << index << "\n";
-    index = index >> (tag_bits + offset_bits);
-    //std::cout << "tagB: " << tag_bits << "indB:"<<index_bits << " offset:" << offset_bits << "index:" << index << "\n";
 
+    // 64 bit to account for larger shifts
+    uint64_t index = address << tag_bits;
+    index = index >> (tag_bits + offset_bits);
+
+    // should auto drop back to 32 bit
     return index;
 
 }
 
+/*
+ * calculate the tag of a trace
+ *
+ * Parameters:
+ *   trace - pointer to current trace being calculated
+ *
+ * Returns:
+ *   value of tag bits in trace
+ *
+ */
 int Cache::getTag(std::string * trace) const{
     uint32_t index_bits = (int) log2(numSets);
     uint32_t offset_bits = (int) log2(numBytes);
+
     std::string indexString = "0x" + *trace;
     uint32_t address = stol(indexString, nullptr, 0);
-    //std::cout << "indexB: " << index_bits << " offset:" << offset_bits  <<"address :" << (address >> (index_bits + offset_bits) )<< "\n";
+
     return address >> (index_bits + offset_bits);
 }
 
+
+/*
+ * See of memory trace is present in cache
+ *
+ * Parameters:
+ *   trace - pointer to current trace being calculated
+ *
+ * Returns:
+ *   true if present
+ *
+ */
 bool Cache::checkMemoryTrace(std::string trace) { //true if hit
     int traceTag = getTag(&trace);
-    //std::cout << "checked\n";
-    //getTag(&trace);
-//    std::cout << trace << " tag:";
-//    std::cout << getTag(&trace) << " set: " << getSet(&trace)  << " find : " << findTag(&trace)<<"\n";
-    //std::cout << sets.at(getSet(&trace)).size() << "\n";
-    // const std::pair<bool, std::vector<std::string>>& block : sets.at(getSet(&trace))
-    for(unsigned long i = 0; i < sets.at(getSet(&trace)).size(); i++){
-        for(std::string t : sets.at(getSet(&trace)).at(i).second){
-            //std::cout << "trace:" << traceTag << " t:" << getTag(&t) <<"\n";
+    // search set
+    for(auto & i : sets.at(getSet(&trace))){
+        // search block
+        for(std::string t : i.second){
             if(getTag(&t) == traceTag){
                 return true;
             }
@@ -156,80 +261,114 @@ bool Cache::checkMemoryTrace(std::string trace) { //true if hit
     return false;
 }
 
-bool Cache::cacheFull(std::string * trace){ //checking if there's a block in the set that has room
+
+/*
+ * checking if there's a block in the set that has room
+ *
+ * Parameters:
+ *   trace - pointer to current trace being calculated
+ *
+ * Returns:
+ *   true if cache is full
+ *
+ */
+bool Cache::cacheFull(std::string * trace){
     if((int)sets.at(getSet(trace)).size() < numBlocks){
-        //std::cout << "b";
-        return false; //cache is not full
+        //cache is not full
+        return false;
     }else{
-        //std::cout << "a";
         return true;
     }
 }
 
+
+/*
+ * adding new block list, containing passed in trace
+ *
+ * Parameters:
+ *   trace - pointer to current trace being calculated
+ *
+ * Returns:
+ *
+ */
 void Cache::addBlock(std::string * trace){
-    //sets.at(getSet(trace)).insert(createBlock(trace));
-    //std::cout << * trace << " tag:" << getTag(trace) << " set: " << getSet(trace)  << " find : " << findTag(trace)<<"\n";
 
     auto block = createBlock(trace);
     sets.at(getSet(trace)).push_back(block);
-    //std::cout << "block:" << block.second.size() << "\n";
 
-    /*for (int i = 0; i < sets[0].size(); i++) {
-        std::cout << "curr:" << sets[0][i].first << "\n";
-    }*/
-    //std::cout << getSet(trace) << "\n";
+    // by definition requires going to main memory
     cycles += 100 * numBytes / 4;
 }
 
+
+/*
+ * creates a new block from scratch
+ *
+ * Parameters:
+ *   trace - pointer to current trace being calculated
+ *
+ * Returns:
+ *   new generated block, with pair structure as above
+ *
+ */
 std::pair<bool, std::vector<std::string>> Cache::createBlock(std:: string * trace) const{
-    //std::cout << "Inner Trace:" << trace << "\n";
     std::vector<std::string> traces(numBytes / 4);
     std::string indexString  = "0x" + *trace;
-//    if (!(trace->substr(0, 2) == "0x")) {
-//        indexString ;
-//    }
-    //std::cout << "Inner Trace:" << trace << "\n";
 
     uint32_t address = stol(indexString, nullptr, 0);
-    //std::cout << "Address:" << address << "\n";
     for(int i = 0; i < numBytes / 4; i++){
         std::stringstream sstream;
         sstream << std::hex << address;
         std::string result = sstream.str();
+
         traces[i] = result;
         address++;
     }
-    //std::cout << "Inner Trace:" << traces[0] << "\n";
     return std::make_pair(false, traces);
 }
 
+
+/*
+ * sort block for lru
+ *
+ * Parameters:
+ *   trace - pointer to current trace being calculated
+ *
+ * Returns:
+ *
+ */
 void Cache::updateBlockOrder(std::string * trace){
     int traceTag = getTag(trace);
     std::pair<bool, std::vector<std::string>> temp;
-    //bool found = false;
     for(int i = 0; i < (int) sets.at(getSet(trace)).size(); i++){
         for(std::string t : sets.at(getSet(trace)).at(i).second){
             if(getTag(&t) == traceTag){
+                // found tag
                 temp = sets.at(getSet(trace)).at(i);
                 sets.at(getSet(trace)).erase(sets.at(getSet(trace)).begin() + i);
                 sets.at(getSet(trace)).push_back(temp);
+                // send to back and break
                 break;
             }
         }
     }
 }
 
-void Cache::replace(std::string * trace){ //delete first block, create new block and add to the end
-    //std::cout << * trace << " tag:" << getTag(trace) << " set: " << getSet(trace)  << " find : " << findTag(trace)<<"AA\n";
+
+/*
+ * delete first block, create new block and add to the end
+ *
+ * Parameters:
+ *   trace - pointer to current trace being calculated
+ *
+ * Returns:
+ *
+ */
+void Cache::replace(std::string * trace){
 
     if(sets.at(getSet(trace)).at(findTag(trace)).first) { //it's a dirty block
-        //std::cout << "dirty\n";
         cycles += 100 * numBytes / 4;
     }
-    //std::cout << sets.at(getSet(trace)).size() << "size \n";
     sets.at(getSet(trace)).erase(sets.at(getSet(trace)).begin());
-    //sets.at(getSet(trace)).push_back(createBlock(trace));
-    //std::cout << "passed erase\n";
     addBlock(trace);
-    //std::cout << "replace\n";
 }
