@@ -23,7 +23,7 @@ public:
     void inc_sh(std::string * trace);
     void inc_sm(std::string * trace);
     uint32_t getSet(std::string * trace) const;
-    int getTag(std::string * trace) const;
+    uint32_t getTag(std::string * trace) const;
     bool checkMemoryTrace(std::string trace);
     bool cacheFull(std::string * trace);
     void addBlock(std::string * trace);

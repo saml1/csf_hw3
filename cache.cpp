@@ -118,11 +118,15 @@ void Cache::inc_sh(std::string * trace){
         // must sort on hit
         updateBlockOrder(trace);
     }
-    if (!this->writeThrough) {
+
+    if (this->writeThrough) {
+        //writes to cache immediately
+        cycles += 100;
+    } else {
         // mark as dirty if write-back
         sets.at(getSet(trace)).at(findTag(trace)).first = true;
+        cycles++;
     }
-    cycles++;
 }
 
 /*
@@ -171,9 +175,9 @@ void Cache::inc_sm(std::string * trace){
  *   index of the found tag
  */
 int Cache::findTag(std::string * trace) {
-
     // get tag in trace
-    int traceTag = getTag(trace);
+    uint32_t traceTag = getTag(trace);
+
     std::pair<bool, std::vector<std::string>> temp;
     for(int i = 0; i < (int) sets.at(getSet(trace)).size(); i++){
         for(std::string t : sets.at(getSet(trace)).at(i).second){
@@ -224,7 +228,7 @@ uint32_t Cache::getSet(std::string * trace) const{
  *   value of tag bits in trace
  *
  */
-int Cache::getTag(std::string * trace) const{
+uint32_t Cache::getTag(std::string * trace) const{
     uint32_t index_bits = (int) log2(numSets);
     uint32_t offset_bits = (int) log2(numBytes);
 
@@ -246,7 +250,7 @@ int Cache::getTag(std::string * trace) const{
  *
  */
 bool Cache::checkMemoryTrace(std::string trace) { //true if hit
-    int traceTag = getTag(&trace);
+    uint32_t traceTag = getTag(&trace);
     // search set
     for(auto & i : sets.at(getSet(&trace))){
         // search block
@@ -334,7 +338,7 @@ std::pair<bool, std::vector<std::string>> Cache::createBlock(std:: string * trac
  *
  */
 void Cache::updateBlockOrder(std::string * trace){
-    int traceTag = getTag(trace);
+    uint32_t traceTag = getTag(trace);
     std::pair<bool, std::vector<std::string>> temp;
     for(int i = 0; i < (int) sets.at(getSet(trace)).size(); i++){
         for(std::string t : sets.at(getSet(trace)).at(i).second){
