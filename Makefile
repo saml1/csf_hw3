@@ -25,4 +25,4 @@ assign3.zip :
 	zip -9r $@ Makefile *.h *.c *.cpp
 
 clean :
-	rm -f *.o csim assign3.zip
+	rm -f *.o csim assign3.zip csim_tests

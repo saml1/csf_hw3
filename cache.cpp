@@ -13,7 +13,7 @@
 #include "cache.h"
 
 
-Cache::Cache(int sets, int blocks, int bytes, bool writeAllocate, bool writeThrough, bool lru){
+Cache::Cache(int sets, int blocks, int bytes, bool writeAllocate, bool writeThrough, bool lru) {
     numSets = sets;
     numBlocks = blocks;
     numBytes = bytes;
@@ -29,11 +29,11 @@ Cache::Cache(int sets, int blocks, int bytes, bool writeAllocate, bool writeThro
 
     // populates the cache structure
     std::vector<std::vector<std::pair<bool, std::vector<std::string>>>> allSets(numSets);
-    for(std::vector<std::pair<bool, std::vector<std::string>>> set : allSets){
-        std::vector<std::pair<bool, std::vector<std::string>>> emptySet (numBlocks);
+    for (std::vector<std::pair<bool, std::vector<std::string>>> set : allSets) {
+        std::vector<std::pair<bool, std::vector<std::string>>> emptySet(numBlocks);
         set = emptySet;
-        for(std::pair<bool, std::vector<std::string>> block : set){
-            std::vector<std::string> temp (numBytes / 4);
+        for (std::pair<bool, std::vector<std::string>> block : set) {
+            std::vector<std::string> temp(numBytes / 4);
             block.second = temp;
         }
     }
@@ -55,14 +55,14 @@ Cache::Cache(int sets, int blocks, int bytes, bool writeAllocate, bool writeThro
  * Returns:
  *   void
  */
-void Cache::printInfo() const{
-    std:: cout << "Total loads: " << load_hit+load_miss << "\n";
-    std:: cout << "Total stores: " << store_hit+store_miss << "\n";
-    std:: cout << "Load hits: " << load_hit << "\n";
-    std:: cout << "Load misses: " << load_miss << "\n";
-    std:: cout << "Store hits: " << store_hit << "\n";
-    std:: cout << "Store misses: " << store_miss << "\n";
-    std:: cout << "Total cycles: " << cycles << "\n";
+void Cache::printInfo() const {
+    std::cout << "Total loads: " << load_hit + load_miss << "\n";
+    std::cout << "Total stores: " << store_hit + store_miss << "\n";
+    std::cout << "Load hits: " << load_hit << "\n";
+    std::cout << "Load misses: " << load_miss << "\n";
+    std::cout << "Store hits: " << store_hit << "\n";
+    std::cout << "Store misses: " << store_miss << "\n";
+    std::cout << "Total cycles: " << cycles << "\n";
 }
 
 
@@ -75,8 +75,8 @@ void Cache::printInfo() const{
  * Returns:
  *
  */
-void Cache::inc_lh(std::string * trace){
-    if(lru){ //must put recently accessed blocks in back
+void Cache::inc_lh(std::string *trace) {
+    if (lru) { //must put recently accessed blocks in back
         updateBlockOrder(trace);
     }
     load_hit++;
@@ -92,11 +92,11 @@ void Cache::inc_lh(std::string * trace){
  * Returns:
  *
  */
-void Cache::inc_lm(std::string * trace){
+void Cache::inc_lm(std::string *trace) {
     load_miss++;
-    if(!cacheFull(trace)){ //if cache isn't full
+    if (!cacheFull(trace)) { //if cache isn't full
         addBlock(trace);
-    }else{ //cache is full
+    } else { //cache is full
         replace(trace);
     }
     // must go to main memory
@@ -112,7 +112,7 @@ void Cache::inc_lm(std::string * trace){
  * Returns:
  *
  */
-void Cache::inc_sh(std::string * trace){
+void Cache::inc_sh(std::string *trace) {
     store_hit++;
     if (lru) {
         // must sort on hit
@@ -138,9 +138,8 @@ void Cache::inc_sh(std::string * trace){
  * Returns:
  *
  */
-void Cache::inc_sm(std::string * trace){
+void Cache::inc_sm(std::string *trace) {
     store_miss++;
-
     //if saving stores to cache
     if (this->writeAllocate) {
         // must go to memory
@@ -155,8 +154,7 @@ void Cache::inc_sm(std::string * trace){
     if (!this->writeThrough) {
         //write back only sets block as dirty
         sets.at(getSet(trace)).at(findTag(trace)).first = true;
-    }
-    else {
+    } else {
         // writes to cache immediately
         cycles += 100;
     }
@@ -174,15 +172,15 @@ void Cache::inc_sm(std::string * trace){
  * Returns:
  *   index of the found tag
  */
-int Cache::findTag(std::string * trace) {
+int Cache::findTag(std::string *trace) {
     // get tag in trace
     uint32_t traceTag = getTag(trace);
 
     std::pair<bool, std::vector<std::string>> temp;
-    for(int i = 0; i < (int) sets.at(getSet(trace)).size(); i++){
-        for(std::string t : sets.at(getSet(trace)).at(i).second){
+    for (int i = 0; i < (int) sets.at(getSet(trace)).size(); i++) {
+        for (std::string t : sets.at(getSet(trace)).at(i).second) {
             // for each object in the block
-            if(getTag(&t) == traceTag){
+            if (getTag(&t) == traceTag) {
                 return i;
             }
         }
@@ -201,7 +199,7 @@ int Cache::findTag(std::string * trace) {
  *   value of set bits in trace
  *
  */
-uint32_t Cache::getSet(std::string * trace) const{
+uint32_t Cache::getSet(std::string *trace) const {
     unsigned int index_bits = (int) log2(numSets);
     unsigned int offset_bits = (int) log2(numBytes);
     unsigned int tag_bits = 32U - offset_bits - index_bits;
@@ -228,7 +226,7 @@ uint32_t Cache::getSet(std::string * trace) const{
  *   value of tag bits in trace
  *
  */
-uint32_t Cache::getTag(std::string * trace) const{
+uint32_t Cache::getTag(std::string *trace) const {
     uint32_t index_bits = (int) log2(numSets);
     uint32_t offset_bits = (int) log2(numBytes);
 
@@ -252,10 +250,10 @@ uint32_t Cache::getTag(std::string * trace) const{
 bool Cache::checkMemoryTrace(std::string trace) { //true if hit
     uint32_t traceTag = getTag(&trace);
     // search set
-    for(auto & i : sets.at(getSet(&trace))){
+    for (auto &i : sets.at(getSet(&trace))) {
         // search block
-        for(std::string t : i.second){
-            if(getTag(&t) == traceTag){
+        for (std::string t : i.second) {
+            if (getTag(&t) == traceTag) {
                 return true;
             }
         }
@@ -274,11 +272,11 @@ bool Cache::checkMemoryTrace(std::string trace) { //true if hit
  *   true if cache is full
  *
  */
-bool Cache::cacheFull(std::string * trace){
-    if((int)sets.at(getSet(trace)).size() < numBlocks){
+bool Cache::cacheFull(std::string *trace) {
+    if ((int) sets.at(getSet(trace)).size() < numBlocks) {
         //cache is not full
         return false;
-    }else{
+    } else {
         return true;
     }
 }
@@ -293,7 +291,7 @@ bool Cache::cacheFull(std::string * trace){
  * Returns:
  *
  */
-void Cache::addBlock(std::string * trace){
+void Cache::addBlock(std::string *trace) {
 
     auto block = createBlock(trace);
     sets.at(getSet(trace)).push_back(block);
@@ -311,12 +309,12 @@ void Cache::addBlock(std::string * trace){
  *   new generated block, with pair structure as above
  *
  */
-std::pair<bool, std::vector<std::string>> Cache::createBlock(std:: string * trace) const{
+std::pair<bool, std::vector<std::string>> Cache::createBlock(std::string *trace) const {
     std::vector<std::string> traces(numBytes / 4);
-    std::string indexString  = "0x" + *trace;
+    std::string indexString = "0x" + *trace;
 
     uint32_t address = stol(indexString, nullptr, 0);
-    for(int i = 0; i < numBytes / 4; i++){
+    for (int i = 0; i < numBytes / 4; i++) {
         std::stringstream sstream;
         sstream << std::hex << address;
         std::string result = sstream.str();
@@ -337,12 +335,12 @@ std::pair<bool, std::vector<std::string>> Cache::createBlock(std:: string * trac
  * Returns:
  *
  */
-void Cache::updateBlockOrder(std::string * trace){
+void Cache::updateBlockOrder(std::string *trace) {
     uint32_t traceTag = getTag(trace);
     std::pair<bool, std::vector<std::string>> temp;
-    for(int i = 0; i < (int) sets.at(getSet(trace)).size(); i++){
-        for(std::string t : sets.at(getSet(trace)).at(i).second){
-            if(getTag(&t) == traceTag){
+    for (int i = 0; i < (int) sets.at(getSet(trace)).size(); i++) {
+        for (std::string t : sets.at(getSet(trace)).at(i).second) {
+            if (getTag(&t) == traceTag) {
                 // found tag
                 temp = sets.at(getSet(trace)).at(i);
                 sets.at(getSet(trace)).erase(sets.at(getSet(trace)).begin() + i);
@@ -364,9 +362,9 @@ void Cache::updateBlockOrder(std::string * trace){
  * Returns:
  *
  */
-void Cache::replace(std::string * trace){
+void Cache::replace(std::string *trace) {
 
-    if(sets.at(getSet(trace)).at(findTag(trace)).first) { //it's a dirty block
+    if (sets.at(getSet(trace)).at(findTag(trace)).first) { //it's a dirty block
         cycles += (100 * (numBytes / 4));
     }
     sets.at(getSet(trace)).erase(sets.at(getSet(trace)).begin());
