@@ -1,5 +1,7 @@
 //
-// Created by Sam Lipschitz and Tadeusz Sikorski on 10/12/20.
+//Sam Lipschitz and Tadeusz Sikorski
+//slipsch3@jhu.edu
+//tsikors2@jhu.edu
 //
 
 #ifndef CSF_HW3_CACHE_H
